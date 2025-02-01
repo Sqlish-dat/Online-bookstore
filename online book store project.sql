@@ -74,6 +74,10 @@ WHERE country='Canada';
 SELECT * FROM Orders 
 WHERE order_date BETWEEN '2023-11-01' AND '2023-11-30';
 
+select * from orders
+where to_char(order_date , 'MM/YYYY') = '11/2023'
+
+
 -- 5) Retrieve the total stock of books available:
 
 SELECT SUM(stock) AS Total_Stock
@@ -123,6 +127,18 @@ FROM Orders o
 JOIN Books b ON o.book_id = b.book_id
 GROUP BY b.Genre;
 
+--using CTE(common table expression)
+with cte as
+(
+Select  b.title , b.genre 
+,o.quantity
+from books b 
+join orders o 
+on o.book_id=b.book_id)
+
+select genre , sum(quantity) as total_sold
+from cte 
+group by genre
 
 -- 2) Find the average price of books in the "Fantasy" genre:
 SELECT AVG(price) AS Average_Price
@@ -135,9 +151,16 @@ SELECT o.customer_id, c.name, COUNT(o.Order_id) AS ORDER_COUNT
 FROM orders o
 JOIN customers c ON o.customer_id=c.customer_id
 GROUP BY o.customer_id, c.name
-HAVING COUNT(Order_id) >=2;
+HAVING COUNT(Order_id) >=2
+order by customer_id
 
-
+--Using(cte)
+with cte as 
+(select c.customer_id ,c.name  , COUNT(o.customer_id) as "ORDER COUNT"
+FROM orders o JOIN customers  c 
+on c.customer_id = o.customer_id
+group by c.customer_id
+order by "ORDER COUNT")
 
 
 -- 4) Find the most frequently ordered book:
